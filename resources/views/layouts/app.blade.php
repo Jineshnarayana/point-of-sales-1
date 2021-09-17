@@ -78,7 +78,10 @@
 
         <main class="py-4">
             @yield('content')
-            {{isset($slot)?$slot : null}}
+            <div class='container-fluid'>
+                {{isset($slot)?$slot : null}}
+            </div>
+            
         </main>
     </div>
     @livewireScripts
