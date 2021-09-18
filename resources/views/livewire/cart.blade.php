@@ -11,7 +11,7 @@
                         <div class="col-md-3 mb-3">
                             <div class="card">
                                 <div class="card-body">
-                                    <img src="{{ asset('storage/images/'.$product->image)}}" alt="product" class="img-fluid">
+                                    <img src="{{ asset('storage/images/'.$product->image)}}" alt="product" style="object-fit:contain; width:100%; height:125px">
                                 </div>
                                 <div class="card-footer">
                                     <h6 class="text-center font-weight-bold">{{$product->name}}</h6>
@@ -56,9 +56,9 @@
                             <td>{{$cart['name']}} 
                                 <br>
                                 Qty: {{$cart['qty']}}
-                                <a href="#" wire:click="increaseItem('{{ $cart['rowId'] }}')" class="font-weight-bold text-secondary">+</a>
-                                <a href="#" wire:click="decreaseItem('{{ $cart['rowId'] }}')" class="font-weight-bold text-secondary">-</a>
-                                <a href="#" wire:click="removeItem('{{ $cart['rowId'] }}')" class="font-weight-bold text-secondary">X</a>
+                                <i class="fas fa-plus" wire:click="increaseItem('{{ $cart['rowId'] }}')" style="cursor:pointer"></i>
+                                <i class="fas fa-minus" wire:click="decreaseItem('{{ $cart['rowId'] }}')" style="cursor:pointer"></i>
+                                <i class="fas fa-trash" wire:click="removeItem('{{ $cart['rowId'] }}')" style="cursor:pointer"></i>
                             </td>
                             <td>Rp. {{number_format($cart['price'],2,',','.')}}</td>
                         </tr>
