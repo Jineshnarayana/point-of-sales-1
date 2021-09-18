@@ -25,9 +25,14 @@
         <div class="card">
             <div class="card-body">
                 <h2 class="font-weight-bold">Cart</h2>
+                <p>
+                    @if(session()->has('error'))
+                        {{session('error')}}
+                    @endif
+                </p>
                 <!--forelse jika tidak ada akan menampilkan empty-->
-                <table class="table table-sm table-bordered table-striped table-hovered">
-                    <thead>
+                <table class="table table-sm table-bordered table-hovered">
+                    <thead clas="bg-secondary text-white">
                         <tr>
                             <th>No</th>
                             <th>Name</th>
@@ -38,7 +43,13 @@
                     @forelse($carts as $index=>$cart)
                         <tr>
                             <td>{{$index+1}}</td>
-                            <td>{{$cart['name']}} || {{$cart['qty']}}</td>
+                            <td>{{$cart['name']}} 
+                                <br>
+                                Qty: {{$cart['qty']}}
+                                <a href="#" wire:click="increaseItem('{{ $cart['rowId'] }}')" class="font-weight-bold text-secondary">+</a>
+                                <a href="#" wire:click="decreaseItem('{{ $cart['rowId'] }}')" class="font-weight-bold text-secondary">-</a>
+                                <a href="#" wire:click="removeItem('{{ $cart['rowId'] }}')" class="font-weight-bold text-secondary">X</a>
+                            </td>
                             <td>{{$cart['price']}}</td>
                         </tr>
                     @empty

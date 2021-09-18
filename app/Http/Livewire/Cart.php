@@ -104,4 +104,46 @@ class Cart extends Component
     public function disableTax(){
         $this->tax = "0%";
     }
+
+    public function increaseItem($rowId){
+       $idProduct = substr($rowId, 4,5);
+       $product = ProductModel::find($idProduct);
+       $cart = \Cart::session(Auth()->id())->getContent();
+
+       $checkItem = $cart->wherein('id', $rowId);
+       if($product->qty == $checkItem[$rowId]->quantity){
+           session()->flash('error', 'jumlah item kurang');
+       }else{
+            \Cart::session(Auth()->id())->update($rowId,[
+                'quantity' => [
+                    'relative' => true,
+                    'value' => 1
+                ]
+            ]);
+       }
+
+    }
+    public function decreaseItem($rowId){
+       
+        $idProduct = substr($rowId, 4,5);
+        $product = ProductModel::find($idProduct);
+        $cart = \Cart::session(Auth()->id())->getContent();
+ 
+        $checkItem = $cart->wherein('id', $rowId);
+        if($checkItem[$rowId]->quantity == 1){
+           $this->removeItem($rowId);
+        }else{
+            \Cart::session(Auth()->id())->update($rowId,[
+                'quantity' => [
+                    'relative' => true,
+                    'value' => -1
+                ]
+            ]);
+        }
+
+    }
+    public function removeItem($rowId){
+       
+        \Cart::session(Auth()->id())->remove($rowId);
+    }
 }
