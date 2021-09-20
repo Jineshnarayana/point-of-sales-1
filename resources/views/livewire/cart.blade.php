@@ -79,9 +79,11 @@
                   <button wire:click="enableTax" class="btn btn-primary btn-block">Add Tax</button>
                   <button wire:click="disableTax" class="btn btn-danger btn-block">Remove Tax</button>
               </div>
+              <form wire:submit.prevent="handleSubmit">
               <div class="mt-4">
                     <button class="btn btn-success active btn-block">Save Transaction</button>
               </div>
+              </form>
             </div>
         </div>
     </div>
