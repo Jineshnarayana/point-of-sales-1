@@ -4,9 +4,13 @@ namespace App\Http\Livewire;
 
 use Livewire\Component;
 use App\Models\Product as ProductModel;
+use App\Models\Transaction;
+use App\Models\ProductTransaction;
+
 use Carbon\Carbon;
 use Livewire\WithPagination;
 use DB;
+use Haruncpi\LaravelIdGenerator\IdGenerator;
 
 class Cart extends Component
 {
@@ -88,26 +92,37 @@ class Cart extends Component
         $cart = \Cart::session(Auth()->id())->getContent();//panggil cart dari session id
         $cekItemId = $cart->whereIn('id', $rowId);
 
+        $product = ProductModel :: findOrFail($id);
         //jika barang yang dipilih sudah ada maka update quantity
         if($cekItemId->isNotEmpty()){
-            \Cart::session(Auth()->id())->update($rowId, [
-                'quantity' => [
-                    'relative' => true,
-                    'value' => 1
-                ]
-            ]);
+            if($product->qty == $cekItemId[$rowId]->quantity){
+                session()->flash('error', 'jumlah item kurang');
+            }else{
+                \Cart::session(Auth()->id())->update($rowId, [
+                    'quantity' => [
+                        'relative' => true,
+                        'value' => 1
+                    ]
+                ]);
+            }
             
         }else{
-            $product = ProductModel :: findOrFail($id);
-            \Cart::session(Auth()->id())->add([
-                'id' => "Cart".$product->id,
-                'name' => $product->name,
-                'price' => $product->price,
-                'quantity' => 1,
-                'attributes' => [
-                    'added_at' => Carbon::now()
-                ],    
-            ]);
+            //tambahkn product ke chart
+            if($product->qty == 0){
+                session()->flash('error', 'jumlah item kurang');
+            }else{
+                
+                \Cart::session(Auth()->id())->add([
+                    'id' => "Cart".$product->id,
+                    'name' => $product->name,
+                    'price' => $product->price,
+                    'quantity' => 1,
+                    'attributes' => [
+                        'added_at' => Carbon::now()
+                    ],    
+                ]);
+            }
+            
         }
 
     }
@@ -127,12 +142,16 @@ class Cart extends Component
        if($product->qty == $checkItem[$rowId]->quantity){
            session()->flash('error', 'jumlah item kurang');
        }else{
-            \Cart::session(Auth()->id())->update($rowId,[
-                'quantity' => [
-                    'relative' => true,
-                    'value' => 1
-                ]
-            ]);
+            if($product->qty == 0){
+                session()->flash('error', 'jumlah item kurang');
+            }else{
+                \Cart::session(Auth()->id())->update($rowId,[
+                    'quantity' => [
+                        'relative' => true,
+                        'value' => 1
+                    ]
+                ]);
+            }
        }
 
     }
@@ -182,6 +201,30 @@ class Cart extends Component
 
                 $product->decrement('qty', $cart['quantity']);
             }
+
+
+            $id = IdGenerator::generate([
+                'table' => 'transactions', 
+                'length' => 10, 
+                'prefix' => 'INV-',
+                'field' => 'invoice_number'
+            ]);
+        
+            Transaction::create([
+                'invoice_number' => $id,
+                'user_id' => Auth()->id(),
+                'total' => $cartTotal
+            ]);
+            foreach ($filterCart as $cart) {
+                ProductTransaction::create([
+                    'product_id' => $cart['id'],
+                    'invoice_number' => $id,
+                    'qty' => $cart['quantity'],
+                ]);
+            }
+            
+            \Cart::session(Auth()->id())->clear();
+
             DB::commit();
         } catch (\Throwable $th) {
             DB::rollback();

@@ -9,6 +9,13 @@ class Transaction extends Model
 {
     use HasFactory;
 
+    protected $table = 'transactions';
+    protected $guarded = [];
+
+    protected $primaryKey = 'invoice_number';
+    public $incrementing = false;//set false increment
+    protected $keyType ='string';
+
     public function product(){
         return $this->hasMany(ProductTransaction::class, 'invoice_number', 'invoice_number');
     }
